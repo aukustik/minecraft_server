@@ -11,10 +11,10 @@ case "$TYPE" in
     "FORGE")
         if [ ! -f forge.jar ]; then
             echo "Скачивание Forge сервера..."
-            wget -q "https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION}-${FORGEVERSION}/forge-${MCVERSION}-${FORGEVERSION}-installer.jar"
-            java -jar forge-${MCVERSION}-${FORGEVERSION}-installer.jar --installServer
-            rm forge-${MCVERSION}-${FORGEVERSION}-installer.jar
-            mv forge.jar server.jar
+            wget -q "https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION}-${FORGEVERSION}/forge-${MCVERSION}-${FORGEVERSION}-installer.jar" -O forge-installer.jar
+            java -jar forge-installer.jar --installServer
+            rm forge-installer.jar
+            mv forge-${MCVERSION}-${FORGEVERSION}.jar server.jar
         fi
         java -Xms${MEMORY} -Xmx${MEMORY} -jar server.jar nogui
         ;;

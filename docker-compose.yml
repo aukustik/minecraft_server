@@ -30,6 +30,8 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./nginx-proxy-protocol.conf:/etc/nginx/conf.d/stream.conf
       - ./nginx-http.conf:/etc/nginx/conf.d/http.conf
+    tmpfs:
+      - /tmp
     depends_on:
       - minecraft
     networks:
