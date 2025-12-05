@@ -9,12 +9,23 @@ done
 # Запуск сервера
 case "$TYPE" in
     "FORGE")
-        if [ ! -f forge.jar ]; then
+        if [ ! -f server.jar ]; then
             echo "Скачивание Forge сервера..."
             wget -q "https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION}-${FORGEVERSION}/forge-${MCVERSION}-${FORGEVERSION}-installer.jar" -O forge-installer.jar
             java -jar forge-installer.jar --installServer
             rm forge-installer.jar
-            mv forge-${MCVERSION}-${FORGEVERSION}.jar server.jar
+            # Проверяем различные возможные имена файла после установки
+            if [ -f "forge-${MCVERSION}-${FORGEVERSION}.jar" ]; then
+                mv "forge-${MCVERSION}-${FORGEVERSION}.jar" server.jar
+            elif [ -f "forge-${MCVERSION}-${FORGEVERSION}-universal.jar" ]; then
+                mv "forge-${MCVERSION}-${FORGEVERSION}-universal.jar" server.jar
+            elif [ -f "forge.jar" ]; then
+                mv forge.jar server.jar
+            else
+                echo "Ошибка: не найден установленный Forge jar файл"
+                ls -la *.jar
+                exit 1
+            fi
         fi
         java -Xms${MEMORY} -Xmx${MEMORY} -jar server.jar nogui
         ;;
