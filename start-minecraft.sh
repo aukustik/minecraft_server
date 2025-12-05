@@ -66,7 +66,15 @@ java -jar "$FORGE_INSTALLER" --installServer
 echo "🔍 Looking for server jar..."
 
 # Wait for installation to complete
-sleep 2
+sleep 5
+
+# Debug: List all files in directory
+echo "📋 Files in directory after installation:"
+ls -la
+
+# Debug: List all jar files
+echo "📋 JAR files in directory:"
+ls -la *.jar 2>/dev/null || echo "No jar files found"
 
 # Check common file patterns
 SERVER_JAR=""
@@ -76,6 +84,9 @@ elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-universal.jar" ]; 
     SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-universal.jar"
 elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar" ]; then
     SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar"
+elif [ -f "libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar" ]; then
+    # Check in libraries directory (newer Forge versions)
+    SERVER_JAR="libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar"
 else
     # Find any forge jar except installer
     SERVER_JAR=$(find . -maxdepth 1 -name "forge-*.jar" ! -name "*installer*" | head -1)
@@ -88,8 +99,8 @@ if [ -n "$SERVER_JAR" ] && [ -f "$SERVER_JAR" ]; then
     chmod +x server.jar
 else
     echo "❌ ERROR: No server jar found after installation"
-    echo "Files in directory:"
-    ls -la *.jar 2>/dev/null || echo "No jar files found"
+    echo "🔍 Searching in subdirectories..."
+    find . -name "*.jar" -type f 2>/dev/null
     exit 1
 fi
 

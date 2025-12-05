@@ -9,7 +9,7 @@ services:
     environment:
       - EULA=true
       - VERSION=1.20.1
-      - MEMORY=2G
+      - MEMORY=512m
       - TYPE=FORGE
       - FORGEVERSION=47.2.0
       - MCVERSION=1.20.1
