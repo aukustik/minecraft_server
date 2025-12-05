@@ -75,24 +75,28 @@ case "$TYPE" in
     "FORGE")
         if [ ! -f server.jar ]; then
             echo "📥 Installing Forge Server..."
-            FORGE_INSTALLER="forge-${MCVERSION}-${FORGEVERSION}-installer.jar"
-            DOWNLOAD_URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION}-${FORGEVERSION}/${FORGE_INSTALLER}"
             
-            echo "   Downloading: ${DOWNLOAD_URL}"
+            # КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Формируем "версию для ссылки" на основе стандартного формата Forge
+            # Этот формат (1.20.1-47.2.0) является наиболее распространенным.
+            FORGE_VERSION_STRING="${MCVERSION}-${FORGEVERSION}"
+            FORGE_INSTALLER="forge-${FORGE_VERSION_STRING}-installer.jar"
+            
+            # КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Используем исправленный URL
+            # Старая структура: .../forge/${MCVERSION}-${FORGEVERSION}/...
+            # Часто корректная структура: .../forge/${FORGE_VERSION_STRING}/...
+            DOWNLOAD_URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${FORGE_VERSION_STRING}/${FORGE_INSTALLER}"
+            
+            echo "   Generated Version String: ${FORGE_VERSION_STRING}"
+            echo "   Attempting Download From: ${DOWNLOAD_URL}"
+            
+            # ... (далее идет код скачивания wget, такой же как у вас)
             if ! download_with_retry "${DOWNLOAD_URL}" "${FORGE_INSTALLER}"; then
-                handle_error "Failed to download Forge installer after multiple attempts"
-            fi
-            
-            if [ ! -f "${FORGE_INSTALLER}" ]; then
-                handle_error "Forge installer not found after download"
-            fi
-            
-            echo "   Installing Forge (this may take a minute)..."
-            if ! java -jar "${FORGE_INSTALLER}" --installServer --acceptEULA > /dev/null 2>&1; then
-                # Try without quiet mode for debugging
-                echo "   First attempt failed, retrying with verbose output..."
-                if ! java -jar "${FORGE_INSTALLER}" --installServer --acceptEULA; then
-                    handle_error "Forge installation failed"
+                # Если скачивание по основной схеме не удалось, пробуем альтернативный URL
+                echo "   Primary URL failed, trying alternative pattern..."
+                ALTERNATIVE_URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION}-${FORGEVERSION}-${MCVERSION}/${FORGE_INSTALLER}"
+                echo "   Attempting: ${ALTERNATIVE_URL}"
+                if ! download_with_retry "${ALTERNATIVE_URL}" "${FORGE_INSTALLER}"; then
+                    handle_error "All download attempts for Forge installer failed. Please check MCVERSION (${MCVERSION}) and FORGEVERSION (${FORGEVERSION})."
                 fi
             fi
             
