@@ -8,6 +8,8 @@ ENV EULA=true \
     FORGEVERSION=47.2.0 \
     MCVERSION=1.20.1
 
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+
 # Создание пользователя и директорий
 RUN groupadd -r minecraft && useradd -r -g minecraft minecraft
 
