@@ -30,7 +30,26 @@ FORGE_INSTALLER="forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-installer.ja
 URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/${FORGE_INSTALLER}"
 
 echo "URL: $URL"
-wget --show-progress -O "$FORGE_INSTALLER" "$URL"
+
+# Check if we have write permissions in current directory
+if [ ! -w "." ]; then
+    echo "❌ ERROR: No write permission in current directory"
+    echo "Current directory: $(pwd)"
+    echo "Directory permissions: $(ls -ld .)"
+    echo "Current user: $(whoami)"
+    exit 1
+fi
+
+# Download with error handling
+if ! wget --show-progress -O "$FORGE_INSTALLER" "$URL"; then
+    echo "❌ ERROR: Failed to download installer"
+    echo "URL: $URL"
+    echo "File: $FORGE_INSTALLER"
+    exit 1
+fi
+
+# Set proper permissions for the downloaded file
+chmod +x "$FORGE_INSTALLER"
 
 if [ ! -f "$FORGE_INSTALLER" ]; then
     echo "❌ ERROR: Failed to download installer"
@@ -65,6 +84,8 @@ fi
 if [ -n "$SERVER_JAR" ] && [ -f "$SERVER_JAR" ]; then
     echo "✓ Found: $SERVER_JAR"
     cp "$SERVER_JAR" server.jar
+    # Ensure proper permissions for server.jar
+    chmod +x server.jar
 else
     echo "❌ ERROR: No server jar found after installation"
     echo "Files in directory:"
@@ -76,6 +97,18 @@ fi
 echo "🧹 Cleaning up..."
 rm -f "$FORGE_INSTALLER" forge-*-installer.jar.log 2>/dev/null
 
-# 7. Start server
+# 7. Verify permissions before starting
+echo "🔍 Verifying permissions..."
+if [ ! -r "server.jar" ]; then
+    echo "❌ ERROR: No read permission for server.jar"
+    exit 1
+fi
+
+if [ ! -x "server.jar" ]; then
+    echo "❌ ERROR: No execute permission for server.jar"
+    exit 1
+fi
+
+# 8. Start server
 echo "🚀 Starting Forge server with ${MEMORY:-2G} RAM..."
 java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui

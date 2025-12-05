@@ -15,7 +15,8 @@ RUN groupadd -r minecraft && useradd -r -g minecraft minecraft
 
 # Создание директории для сервера
 RUN mkdir -p /data \
-    && chown -R minecraft:minecraft /data
+    && chown -R minecraft:minecraft /data \
+    && chmod -R 755 /data
 
 WORKDIR /data
 
