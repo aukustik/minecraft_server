@@ -5,6 +5,7 @@ services:
     build: .
     container_name: minecraft-server
     restart: unless-stopped
+    user: "0:0"  # Запуск от имени root
     environment:
       - EULA=true
       - VERSION=1.20.1

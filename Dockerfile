@@ -27,7 +27,5 @@ RUN chmod +x /start-minecraft.sh
 # Открытие порта
 EXPOSE 25565
 
-# Запуск от имени пользователя minecraft
-USER minecraft
-
+# Запуск от имени root для решения проблем с правами доступа
 CMD ["/start-minecraft.sh"]
