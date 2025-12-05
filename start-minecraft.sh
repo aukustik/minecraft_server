@@ -6,13 +6,13 @@ echo "=== Minecraft Forge Server Startup ==="
 echo "MC: ${MCVERSION:-1.20.1} | Forge: ${FORGEVERSION:-47.2.0}"
 
 # 1. EULA handling
-if [ "${EULA:-false}" = "true" ] && [ ! -f eula.txt ]; then
-    echo "eula=true" > eula.txt
-    echo "✓ EULA accepted"
-fi
-
-if [ ! -f eula.txt ]; then
-    echo "ERROR: eula.txt not found. Set EULA=true"
+if [ "${EULA:-false}" = "true" ]; then
+    if [ ! -f eula.txt ]; then
+        echo "eula=true" > eula.txt
+        echo "✓ EULA accepted"
+    fi
+else
+    echo "ERROR: EULA not accepted. Set EULA=true"
     exit 1
 fi
 
@@ -60,7 +60,7 @@ echo "✓ Downloaded: $(ls -lh "$FORGE_INSTALLER")"
 
 # 4. Install Forge
 echo "🔧 Installing Forge..."
-java -jar "$FORGE_INSTALLER" --installServer --acceptEULA
+java -jar "$FORGE_INSTALLER" --installServer
 
 # 5. Find and rename the server jar
 echo "🔍 Looking for server jar..."
