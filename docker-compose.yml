@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  minecraft:
+    build: .
+    container_name: minecraft-server
+    restart: unless-stopped
+    environment:
+      - EULA=true
+      - VERSION=1.20.1
+      - MEMORY=2G
+      - TYPE=FORGE
+      - FORGEVERSION=47.2.0
+      - MCVERSION=1.20.1
+    volumes:
+      - ./data:/data
+      - ./eula.txt:/data/eula.txt
+    ports:
+      - "25565:25565"
+    networks:
+      - minecraft-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: minecraft-proxy
+    restart: unless-stopped
+    ports:
+      - "25566:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx-proxy-protocol.conf:/etc/nginx/conf.d/proxy-protocol.conf
+    depends_on:
+      - minecraft
+    networks:
+      - minecraft-network
+
+networks:
+  minecraft-network:
+    driver: bridge
+
+volumes:
+  minecraft-data:
+    driver: local
