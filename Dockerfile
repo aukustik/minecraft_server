@@ -11,7 +11,7 @@ ENV EULA=true \
 RUN apk update && apk add --no-cache wget file
 
 # Создание пользователя и директорий
-RUN groupadd -r minecraft && useradd -r -g minecraft minecraft
+RUN addgroup -g 1000 minecraft && adduser -D -s /bin/sh -u 1000 -G minecraft minecraft
 
 # Создание директории для сервера
 RUN mkdir -p /data \
