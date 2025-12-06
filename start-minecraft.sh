@@ -156,9 +156,9 @@ elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-server.jar" ]; then
 elif [ -f "libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-server.jar" ]; then
     # Check in libraries directory (newer Forge versions)
     SERVER_JAR="libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-server.jar"
-elif [ "${MCVERSION:-1.20.1}" = "1.7.10" ] && [ -f "minecraft_server.${MCVERSION:-1.20.1}.jar" ]; then
-    # For Minecraft 1.7.10, check for the vanilla server jar that might be used with Forge
-    SERVER_JAR="minecraft_server.${MCVERSION:-1.20.1}.jar"
+elif [ "${MCVERSION:-1.20.1}" = "1.7.10" ] && [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-${MCVERSION:-1.20.1}-universal.jar" ]; then
+    # For Minecraft 1.7.10, check for the universal Forge jar
+    SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-${MCVERSION:-1.20.1}-universal.jar"
 else
     # Find any forge jar except installer
     SERVER_JAR=$(find . -maxdepth 1 -name "forge-*.jar" ! -name "*installer*" | head -1)
@@ -182,11 +182,10 @@ if [ -n "$SERVER_JAR" ] && [ -f "$SERVER_JAR" ]; then
     
     # Verify the copied file is valid
     echo "🔍 Verifying server.jar integrity..."
-    if ! file server.jar | grep -q "Java archive"; then
+    if ! java -jar server.jar --help > /dev/null 2>&1; then
         echo "❌ ERROR: Copied server.jar is not a valid Java archive"
         echo "File info:"
         ls -la server.jar
-        file server.jar
         exit 1
     fi
     echo "✓ server.jar appears to be valid"

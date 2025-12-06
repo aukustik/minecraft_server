@@ -8,7 +8,7 @@ ENV EULA=true \
     FORGEVERSION=10.13.4.1614 \
     MCVERSION=1.7.10
 
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y wget file && rm -rf /var/lib/apt/lists/*
 
 # Создание пользователя и директорий
 RUN groupadd -r minecraft && useradd -r -g minecraft minecraft
