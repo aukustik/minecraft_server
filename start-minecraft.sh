@@ -19,9 +19,17 @@ fi
 # 2. Check if server already exists
 if [ -f server.jar ]; then
     echo "✓ Found existing server.jar"
-    echo "🚀 Starting server with ${MEMORY:-2G} RAM..."
-    java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui
-    exit 0
+    
+    # Check if server.jar is valid
+    if ! java -jar server.jar --help > /dev/null 2>&1; then
+        echo "❌ ERROR: server.jar is corrupted or invalid"
+        echo "🗑️ Removing corrupted server.jar"
+        rm -f server.jar
+    else
+        echo "� Starting server with ${MEMORY:-2G} RAM..."
+        java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui
+        exit 0
+    fi
 fi
 
 # 3. Download Forge installer
@@ -97,6 +105,17 @@ if [ -n "$SERVER_JAR" ] && [ -f "$SERVER_JAR" ]; then
     cp "$SERVER_JAR" server.jar
     # Ensure proper permissions for server.jar
     chmod +x server.jar
+    
+    # Verify the copied file is valid
+    echo "🔍 Verifying server.jar integrity..."
+    if ! file server.jar | grep -q "Java archive"; then
+        echo "❌ ERROR: Copied server.jar is not a valid Java archive"
+        echo "File info:"
+        ls -la server.jar
+        file server.jar
+        exit 1
+    fi
+    echo "✓ server.jar appears to be valid"
 else
     echo "❌ ERROR: No server jar found after installation"
     echo "🔍 Searching in subdirectories..."

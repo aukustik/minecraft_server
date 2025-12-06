@@ -8,11 +8,11 @@ services:
     user: "0:0"  # Запуск от имени root
     environment:
       - EULA=true
-      - VERSION=1.20.1
-      - MEMORY=512m
+      - VERSION=1.7.10
+      - MEMORY=1G
       - TYPE=FORGE
       - FORGEVERSION=47.2.0
-      - MCVERSION=1.20.1
+      - MCVERSION=1.7.10
     volumes:
       - ./data:/data
       - ./eula.txt:/data/eula.txt
