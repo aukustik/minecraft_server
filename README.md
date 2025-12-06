@@ -32,11 +32,18 @@
 
 Переменные окружения в [`docker-compose.yml`](docker-compose.yml:13-18):
 - `EULA=true` - принять лицензионное соглашение
-- `VERSION=1.20.1` - версия Minecraft
+- `VERSION=1.7.10` - версия Minecraft
 - `MEMORY=2G` - выделенная память
 - `TYPE=FORGE` - тип сервера (FORGE, SPIGOT, PAPER)
-- `FORGEVERSION=47.2.0` - версия Forge
-- `MCVERSION=1.20.1` - версия Minecraft для Forge
+- `FORGEVERSION=10.13.4.1614` - версия Forge
+- `MCVERSION=1.7.10` - версия Minecraft для Forge
+
+### Ссылка для скачивания Forge 1.7.10
+
+Для Minecraft 1.7.10 используется следующая структура ссылки для скачивания Forge:
+```
+https://maven.minecraftforge.net/net/minecraftforge/forge/1.7.10-10.13.4.1614-1.7.10/forge-1.7.10-10.13.4.1614-1.7.10-installer.jar
+```
 
 ### Nginx Proxy Protocol
 

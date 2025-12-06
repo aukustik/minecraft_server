@@ -123,9 +123,9 @@ echo "✓ Downloaded: $(ls -lh "$FORGE_INSTALLER")"
 # 4. Install Forge
 echo "🔧 Installing Forge..."
 if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
-    # For Minecraft 1.7.10, use the old installation method
+    # For Minecraft 1.7.10, use the old installation method without --nogui
     echo "Using legacy installation method for Minecraft 1.7.10..."
-    java -jar "$FORGE_INSTALLER" --installServer --nogui
+    java -jar "$FORGE_INSTALLER" --installServer
 else
     # For newer versions, use the current installation method
     java -jar "$FORGE_INSTALLER" --installServer
@@ -147,10 +147,10 @@ ls -la *.jar 2>/dev/null || echo "No jar files found"
 
 # Check common file patterns
 SERVER_JAR=""
-if [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION}.jar" ]; then
-    SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION}.jar"
-elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-universal.jar" ]; then
+if [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-universal.jar" ]; then
     SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-universal.jar"
+elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION}.jar" ]; then
+    SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION}.jar"
 elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-server.jar" ]; then
     SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-server.jar"
 elif [ -f "libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-server.jar" ]; then
@@ -162,6 +162,16 @@ elif [ "${MCVERSION:-1.20.1}" = "1.7.10" ] && [ -f "minecraft_server.${MCVERSION
 else
     # Find any forge jar except installer
     SERVER_JAR=$(find . -maxdepth 1 -name "forge-*.jar" ! -name "*installer*" | head -1)
+fi
+
+# If still not found, check in subdirectories for Forge 1.7.10 specific files
+if [ -z "$SERVER_JAR" ] || [ ! -f "$SERVER_JAR" ]; then
+    echo "🔍 Checking subdirectories for Forge files..."
+    # Check for universal jar in subdirectories
+    UNIVERSAL_JAR=$(find . -name "*universal*.jar" -type f 2>/dev/null | head -1)
+    if [ -n "$UNIVERSAL_JAR" ] && [ -f "$UNIVERSAL_JAR" ]; then
+        SERVER_JAR="$UNIVERSAL_JAR"
+    fi
 fi
 
 if [ -n "$SERVER_JAR" ] && [ -f "$SERVER_JAR" ]; then
