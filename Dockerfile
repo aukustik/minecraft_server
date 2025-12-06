@@ -22,7 +22,7 @@ WORKDIR /data
 
 # Копирование и запуск скрипта установки
 COPY start-minecraft.sh /start-minecraft.sh
-RUN chmod +x /start-minecraft.sh
+RUN chmod +x /start-minecraft.sh && ls -la /start-minecraft.sh
 
 # Открытие порта
 EXPOSE 25565

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Minecraft Forge Server - Fixed version
 # No loops, clear logic
 
