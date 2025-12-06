@@ -11,7 +11,7 @@ services:
       - VERSION=1.7.10
       - MEMORY=1G
       - TYPE=FORGE
-      - FORGEVERSION=47.2.0
+      - FORGEVERSION=10.13.4.1614
       - MCVERSION=1.7.10
     volumes:
       - ./data:/data
