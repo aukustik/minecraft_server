@@ -31,16 +31,10 @@ fi
 if [ -f server.jar ]; then
     echo "✓ Found existing server.jar"
     
-    # Check if server.jar is valid
-    if ! java -jar server.jar --help > /dev/null 2>&1; then
-        echo "❌ ERROR: server.jar is corrupted or invalid"
-        echo "🗑️ Removing corrupted server.jar"
-        rm -f server.jar
-    else
-        echo "� Starting server with ${MEMORY:-2G} RAM..."
-        java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui
-        exit 0
-    fi
+    # Always remove existing server.jar to ensure we use the correct Forge jar
+    # This prevents issues with corrupted or incorrect jar files
+    echo "🗑️ Removing existing server.jar to ensure clean installation..."
+    rm -f server.jar
 fi
 
 # 3. Download Forge installer
@@ -214,4 +208,7 @@ fi
 
 # 8. Start server
 echo "🚀 Starting Forge server with ${MEMORY:-2G} RAM..."
+echo "Command: java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui"
+echo "Server file info: $(ls -la server.jar)"
+echo "Starting server..."
 java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui
