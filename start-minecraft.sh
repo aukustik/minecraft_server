@@ -45,15 +45,15 @@ fi
 
 # 3. Download Forge installer
 echo "📥 Downloading Forge installer..."
-FORGE_INSTALLER="forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-installer.jar"
+FORGE_INSTALLER="forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-installer.jar"
 
 # Use different URL structure for older Minecraft versions (1.7.10 and earlier)
 if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
     # For Minecraft 1.7.10, use the old Maven repository structure
-    URL="https://files.minecraftforge.net/maven/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/${FORGE_INSTALLER}"
+    URL="https://files.minecraftforge.net/maven/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/${FORGE_INSTALLER}"
 else
     # For newer versions, use the current Maven repository structure
-    URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/${FORGE_INSTALLER}"
+    URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/${FORGE_INSTALLER}"
 fi
 
 echo "URL: $URL"
@@ -71,18 +71,36 @@ fi
 if ! wget --show-progress -O "$FORGE_INSTALLER" "$URL"; then
     echo "❌ Failed to download from primary URL"
     
-    # For Minecraft 1.7.10, try alternative URL
+    # For Minecraft 1.7.10, try alternative URLs
     if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
         echo "🔄 Trying alternative URL for Minecraft 1.7.10..."
-        ALT_URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-installer.jar"
+        ALT_URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-installer.jar"
         echo "Alternative URL: $ALT_URL"
         
         if ! wget --show-progress -O "$FORGE_INSTALLER" "$ALT_URL"; then
-            echo "❌ ERROR: Failed to download installer from both URLs"
-            echo "Primary URL: $URL"
-            echo "Alternative URL: $ALT_URL"
-            echo "File: $FORGE_INSTALLER"
-            exit 1
+            echo "❌ Failed to download from alternative URL"
+            echo "🔄 Trying another URL for Minecraft 1.7.10..."
+            # Try another URL pattern for older Forge versions
+            THIRD_URL="https://files.minecraftforge.net/maven/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}-${FORGEVERSION}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-${FORGEVERSION}-installer.jar"
+            echo "Third URL: $THIRD_URL"
+            
+            if ! wget --show-progress -O "$FORGE_INSTALLER" "$THIRD_URL"; then
+                echo "❌ Failed to download from third URL"
+                echo "🔄 Trying direct download from Forge website..."
+                # Try direct download from Forge website
+                FOURTH_URL="https://media.forgecdn.net/files/2317/877/forge-1.7.10-10.13.4.1614-1.7.10-installer.jar"
+                echo "Fourth URL: $FOURTH_URL"
+                
+                if ! wget --show-progress -O "$FORGE_INSTALLER" "$FOURTH_URL"; then
+                    echo "❌ ERROR: Failed to download installer from all URLs"
+                    echo "Primary URL: $URL"
+                    echo "Alternative URL: $ALT_URL"
+                    echo "Third URL: $THIRD_URL"
+                    echo "Fourth URL: $FOURTH_URL"
+                    echo "File: $FORGE_INSTALLER"
+                    exit 1
+                fi
+            fi
         fi
     else
         echo "❌ ERROR: Failed to download installer"
@@ -129,15 +147,15 @@ ls -la *.jar 2>/dev/null || echo "No jar files found"
 
 # Check common file patterns
 SERVER_JAR=""
-if [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}.jar" ]; then
-    SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}.jar"
-elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-universal.jar" ]; then
-    SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-universal.jar"
-elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar" ]; then
-    SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar"
-elif [ -f "libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar" ]; then
+if [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION}.jar" ]; then
+    SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION}.jar"
+elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-universal.jar" ]; then
+    SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-universal.jar"
+elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-server.jar" ]; then
+    SERVER_JAR="forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-server.jar"
+elif [ -f "libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-server.jar" ]; then
     # Check in libraries directory (newer Forge versions)
-    SERVER_JAR="libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar"
+    SERVER_JAR="libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-server.jar"
 elif [ "${MCVERSION:-1.20.1}" = "1.7.10" ] && [ -f "minecraft_server.${MCVERSION:-1.20.1}.jar" ]; then
     # For Minecraft 1.7.10, check for the vanilla server jar that might be used with Forge
     SERVER_JAR="minecraft_server.${MCVERSION:-1.20.1}.jar"
