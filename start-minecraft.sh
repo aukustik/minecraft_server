@@ -3,7 +3,18 @@
 # No loops, clear logic
 
 echo "=== Minecraft Forge Server Startup ==="
-echo "MC: ${MCVERSION:-1.20.1} | Forge: ${FORGEVERSION:-47.2.0}"
+# Set default Forge version based on Minecraft version if not specified
+if [ -z "$FORGEVERSION" ]; then
+    case "${MCVERSION:-1.20.1}" in
+        "1.7.10")
+            FORGEVERSION="10.13.4.1614"
+            ;;
+        *)
+            FORGEVERSION="47.2.0"
+            ;;
+    esac
+fi
+echo "MC: ${MCVERSION:-1.20.1} | Forge: ${FORGEVERSION}"
 
 # 1. EULA handling
 if [ "${EULA:-false}" = "true" ]; then
@@ -35,7 +46,15 @@ fi
 # 3. Download Forge installer
 echo "📥 Downloading Forge installer..."
 FORGE_INSTALLER="forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-installer.jar"
-URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/${FORGE_INSTALLER}"
+
+# Use different URL structure for older Minecraft versions (1.7.10 and earlier)
+if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
+    # For Minecraft 1.7.10, use the old Maven repository structure
+    URL="https://files.minecraftforge.net/maven/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/${FORGE_INSTALLER}"
+else
+    # For newer versions, use the current Maven repository structure
+    URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/${FORGE_INSTALLER}"
+fi
 
 echo "URL: $URL"
 
@@ -50,10 +69,27 @@ fi
 
 # Download with error handling
 if ! wget --show-progress -O "$FORGE_INSTALLER" "$URL"; then
-    echo "❌ ERROR: Failed to download installer"
-    echo "URL: $URL"
-    echo "File: $FORGE_INSTALLER"
-    exit 1
+    echo "❌ Failed to download from primary URL"
+    
+    # For Minecraft 1.7.10, try alternative URL
+    if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
+        echo "🔄 Trying alternative URL for Minecraft 1.7.10..."
+        ALT_URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-installer.jar"
+        echo "Alternative URL: $ALT_URL"
+        
+        if ! wget --show-progress -O "$FORGE_INSTALLER" "$ALT_URL"; then
+            echo "❌ ERROR: Failed to download installer from both URLs"
+            echo "Primary URL: $URL"
+            echo "Alternative URL: $ALT_URL"
+            echo "File: $FORGE_INSTALLER"
+            exit 1
+        fi
+    else
+        echo "❌ ERROR: Failed to download installer"
+        echo "URL: $URL"
+        echo "File: $FORGE_INSTALLER"
+        exit 1
+    fi
 fi
 
 # Set proper permissions for the downloaded file
@@ -68,7 +104,14 @@ echo "✓ Downloaded: $(ls -lh "$FORGE_INSTALLER")"
 
 # 4. Install Forge
 echo "🔧 Installing Forge..."
-java -jar "$FORGE_INSTALLER" --installServer
+if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
+    # For Minecraft 1.7.10, use the old installation method
+    echo "Using legacy installation method for Minecraft 1.7.10..."
+    java -jar "$FORGE_INSTALLER" --installServer --nogui
+else
+    # For newer versions, use the current installation method
+    java -jar "$FORGE_INSTALLER" --installServer
+fi
 
 # 5. Find and rename the server jar
 echo "🔍 Looking for server jar..."
@@ -95,6 +138,9 @@ elif [ -f "forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar" ]; the
 elif [ -f "libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar" ]; then
     # Check in libraries directory (newer Forge versions)
     SERVER_JAR="libraries/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION:-47.2.0}-server.jar"
+elif [ "${MCVERSION:-1.20.1}" = "1.7.10" ] && [ -f "minecraft_server.${MCVERSION:-1.20.1}.jar" ]; then
+    # For Minecraft 1.7.10, check for the vanilla server jar that might be used with Forge
+    SERVER_JAR="minecraft_server.${MCVERSION:-1.20.1}.jar"
 else
     # Find any forge jar except installer
     SERVER_JAR=$(find . -maxdepth 1 -name "forge-*.jar" ! -name "*installer*" | head -1)
