@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:8-jre-alpine
 
 # Установка переменных окружения
 ENV EULA=true \
@@ -8,7 +8,7 @@ ENV EULA=true \
     FORGEVERSION=10.13.4.1614 \
     MCVERSION=1.7.10
 
-RUN apt-get update && apt-get install -y wget file && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add --no-cache wget file
 
 # Создание пользователя и директорий
 RUN groupadd -r minecraft && useradd -r -g minecraft minecraft

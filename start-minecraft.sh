@@ -223,12 +223,6 @@ echo "🚀 Starting Forge server with ${MEMORY:-2G} RAM..."
 echo "Server file info: $(ls -la server.jar)"
 echo "Starting server..."
 
-# For Minecraft 1.7.10 with Forge, we need to use special launch command
-if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
-    echo "Using special launch command for Minecraft 1.7.10 Forge..."
-    # For Forge 1.7.10, we need to specify the main class manually
-    java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -cp "libraries/*:minecraft_server.${MCVERSION:-1.20.1}.jar:forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-${MCVERSION:-1.20.1}-universal.jar" net.minecraft.launchwrapper.Launch --tweakClass cpw.mods.fml.common.launcher.FMLTweaker --serverProperties server.properties
-else
-    echo "Command: java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui"
-    java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui
-fi
+# For Minecraft 1.7.10 with Forge, use the standard jar command with Java 8
+echo "Command: java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui"
+java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui
