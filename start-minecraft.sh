@@ -49,8 +49,8 @@ FORGE_INSTALLER="forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-installer.jar"
 
 # Use different URL structure for older Minecraft versions (1.7.10 and earlier)
 if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
-    # For Minecraft 1.7.10, use the old Maven repository structure
-    URL="https://files.minecraftforge.net/maven/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/${FORGE_INSTALLER}"
+    # For Minecraft 1.7.10, use the correct Maven repository structure
+    URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}-${MCVERSION:-1.20.1}/${FORGE_INSTALLER}"
 else
     # For newer versions, use the current Maven repository structure
     URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/${FORGE_INSTALLER}"
@@ -74,21 +74,21 @@ if ! wget --show-progress -O "$FORGE_INSTALLER" "$URL"; then
     # For Minecraft 1.7.10, try alternative URLs
     if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
         echo "🔄 Trying alternative URL for Minecraft 1.7.10..."
-        ALT_URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-installer.jar"
+        ALT_URL="https://files.minecraftforge.net/maven/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}-${MCVERSION:-1.20.1}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-${MCVERSION:-1.20.1}-installer.jar"
         echo "Alternative URL: $ALT_URL"
         
         if ! wget --show-progress -O "$FORGE_INSTALLER" "$ALT_URL"; then
             echo "❌ Failed to download from alternative URL"
             echo "🔄 Trying another URL for Minecraft 1.7.10..."
             # Try another URL pattern for older Forge versions
-            THIRD_URL="https://files.minecraftforge.net/maven/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}-${FORGEVERSION}/forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-${FORGEVERSION}-installer.jar"
+            THIRD_URL="https://media.forgecdn.net/files/2317/877/forge-1.7.10-10.13.4.1614-1.7.10-installer.jar"
             echo "Third URL: $THIRD_URL"
             
             if ! wget --show-progress -O "$FORGE_INSTALLER" "$THIRD_URL"; then
                 echo "❌ Failed to download from third URL"
                 echo "🔄 Trying direct download from Forge website..."
                 # Try direct download from Forge website
-                FOURTH_URL="https://media.forgecdn.net/files/2317/877/forge-1.7.10-10.13.4.1614-1.7.10-installer.jar"
+                FOURTH_URL="https://maven.minecraftforge.net/net/minecraftforge/forge/${MCVERSION:-1.20.1}-${FORGEVERSION}-${MCVERSION:-1.20.1}/${FORGE_INSTALLER}"
                 echo "Fourth URL: $FOURTH_URL"
                 
                 if ! wget --show-progress -O "$FORGE_INSTALLER" "$FOURTH_URL"; then
