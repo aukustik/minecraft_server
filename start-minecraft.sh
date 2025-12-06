@@ -176,11 +176,23 @@ if [ -n "$SERVER_JAR" ] && [ -f "$SERVER_JAR" ]; then
     
     # Verify the copied file is valid
     echo "🔍 Verifying server.jar integrity..."
-    if ! java -jar server.jar --help > /dev/null 2>&1; then
-        echo "❌ ERROR: Copied server.jar is not a valid Java archive"
-        echo "File info:"
-        ls -la server.jar
-        exit 1
+    # For Forge 1.7.10, we need to check if it's a valid jar file differently
+    if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
+        # For Forge 1.7.10, just check if the file exists and has content
+        if [ ! -s server.jar ]; then
+            echo "❌ ERROR: server.jar is empty or doesn't exist"
+            echo "File info:"
+            ls -la server.jar
+            exit 1
+        fi
+    else
+        # For newer versions, try to run with --help flag
+        if ! java -jar server.jar --help > /dev/null 2>&1; then
+            echo "❌ ERROR: Copied server.jar is not a valid Java archive"
+            echo "File info:"
+            ls -la server.jar
+            exit 1
+        fi
     fi
     echo "✓ server.jar appears to be valid"
 else
@@ -208,7 +220,15 @@ fi
 
 # 8. Start server
 echo "🚀 Starting Forge server with ${MEMORY:-2G} RAM..."
-echo "Command: java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui"
 echo "Server file info: $(ls -la server.jar)"
 echo "Starting server..."
-java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui
+
+# For Minecraft 1.7.10 with Forge, we need to use special launch command
+if [ "${MCVERSION:-1.20.1}" = "1.7.10" ]; then
+    echo "Using special launch command for Minecraft 1.7.10 Forge..."
+    # For Forge 1.7.10, we need to specify the main class manually
+    java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -cp "libraries/*:minecraft_server.${MCVERSION:-1.20.1}.jar:forge-${MCVERSION:-1.20.1}-${FORGEVERSION}-${MCVERSION:-1.20.1}-universal.jar" net.minecraft.launchwrapper.Launch --tweakClass cpw.mods.fml.common.launcher.FMLTweaker --serverProperties server.properties
+else
+    echo "Command: java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui"
+    java -Xms${MEMORY:-2G} -Xmx${MEMORY:-2G} -jar server.jar nogui
+fi
